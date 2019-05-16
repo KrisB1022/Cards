@@ -3,7 +3,7 @@ import React from "react";
 
 function App() {
 	return (
-		<div>
+		<div className="container">
 			<header>{/* <img src={logo} className="App-logo" alt="logo" /> */}</header>
 		</div>
 	);
