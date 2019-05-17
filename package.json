@@ -7,6 +7,7 @@
 		"react-dom": "^16.8.6",
 		"react-scripts": "3.0.1"
 	},
+	"proxy": "http://localhost:4000",
 	"scripts": {
 		"start": "yarn && react-scripts start",
 		"build": "react-scripts build",
@@ -36,6 +37,7 @@
 		"enzyme": "^3.9.0",
 		"enzyme-adapter-react-16": "^1.13.0",
 		"jest-emotion": "^10.0.11",
-		"jest-fetch-mock": "^2.1.2"
+		"jest-fetch-mock": "^2.1.2",
+		"reactstrap": "^8.0.0"
 	}
 }
