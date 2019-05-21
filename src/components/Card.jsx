@@ -63,8 +63,8 @@ class Card extends PureComponent {
 }
 
 Card.propTypes = {
-	name: PropTypes.string,
-	imageUrl: PropTypes.string,
+	imageUrl: PropTypes.string.isRequired,
+	name: PropTypes.string.isRequired,
 	artist: PropTypes.string,
 	originalType: PropTypes.string,
 	setName: PropTypes.string

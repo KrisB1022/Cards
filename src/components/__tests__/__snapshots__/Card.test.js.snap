@@ -1,0 +1,76 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`matches snapshot 1`] = `
+.emotion-0 {
+  max-width: 200px;
+}
+
+<div
+  className="col-md-3 flex-grow-1 mb-4"
+>
+  <div
+    className="pl-0 pr-0 h-100 card"
+  >
+    <div
+      className="card-header"
+    >
+      name
+    </div>
+    <div
+      className="d-flex flex-column card-body"
+    >
+      <figure
+        className="figure mx-auto d-block mb-auto border-bottom pb-2"
+      >
+        <img
+          alt="name card image"
+          className="mx-auto d-block figure-img img-fluid emotion-0 flex-grow-1 card-img-top"
+          src="url.com"
+        />
+        <figcaption
+          className="figure-caption text-right"
+        >
+          name
+        </figcaption>
+      </figure>
+      <div
+        className="pt-2"
+      >
+        <p
+          className="card-text"
+        >
+          <span
+            className="font-weight-bolder"
+          >
+            Artist:
+          </span>
+           
+          artist
+        </p>
+        <p
+          className="card-text"
+        >
+          <span
+            className="font-weight-bolder"
+          >
+            Original Type:
+          </span>
+           
+          originalType
+        </p>
+        <p
+          className="card-text"
+        >
+          <span
+            className="font-weight-bolder"
+          >
+            Set Name:
+          </span>
+           
+          setName
+        </p>
+      </div>
+    </div>
+  </div>
+</div>
+`;

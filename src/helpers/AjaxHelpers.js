@@ -3,36 +3,26 @@ export function fetchApi(url, options = {}) {
 		mode: "cors",
 		method: "GET",
 		...options
-	})
-		.then(res => {
-			if (res.ok || res.status === 404) {
-				return Promise.resolve(res);
-			}
+	}).then(res => {
+		if (res.ok || res.status === 404) {
+			return Promise.resolve(res);
+		}
 
-			return Promise.reject(res);
-		})
-		.then(res => {
-			const { headers } = res;
-
-			const contentType = headers && headers.get("Content-Type");
-			const isJSON = contentType && contentType.includes("application/json");
-
-			if (isJSON) {
-				return res.json();
-			}
-
-			return res;
-		});
+		return Promise.reject(res);
+	});
 }
 
-export function queryFormatHelper(query = []) {
-	if (!Array.isArray(query)) {
+export function queryFormatHelper(queryParams = {}) {
+	const keys = Object.keys(queryParams);
+
+	if (keys.length === 0) {
 		return "";
 	}
 
-	return query.reduce((acc, q, index) => {
+	return keys.reduce((acc, key, index) => {
 		const prefix = index === 0 ? "?" : "&";
+		const param = `${key}=${encodeURIComponent(queryParams[key])}`;
 
-		return `${acc}${prefix}${q}`;
+		return `${acc}${prefix}${param}`;
 	}, "");
 }
