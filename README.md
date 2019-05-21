@@ -1,68 +1,45 @@
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
-## Available Scripts
+## Development
 
-In the project directory, you can run:
+Dependencies:
 
-### `npm start`
+-   [node v10.x](https://nodejs.org/en/)
+-   [yarn v1.15.X](https://yarnpkg.com/en/)
 
-Runs the app in the development mode.<br>
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+Start up
 
-The page will reload if you make edits.<br>
-You will also see any lint errors in the console.
+-   `yarn start` (npm packages will auto install and will launch the app)
 
-### `npm test`
+## Testing
 
-Launches the test runner in the interactive watch mode.<br>
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+Tests are implemented using [Jest](https://jestjs.io/) and [Enzyme](https://airbnb.io/enzyme/)
 
-### `npm run build`
+-   `yarn test` will run tests in "watch" mode
+-   `yarn test --coverage` will print out test coverage for the app
 
-Builds the app for production to the `build` folder.<br>
-It correctly bundles React in production mode and optimizes the build for the best performance.
+## Concepts
 
-The build is minified and the filenames include the hashes.<br>
-Your app is ready to be deployed!
+The main concept for this app, was to first, provide a working production style app for code review. Secondly, it was to provde a simple design and feature set to better allow for more focused questions during an interview.
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+Testing was done so that coverage is above 98%, and is meant to showcase a few different methods on how to test a React based project. `Test` duplication of code, was intentional where found, based on the idea that each test has it's own scope and logic and should be easily modified without changing other tests - futher helping to protect the codebase from unintential changes.
 
-### `npm run eject`
+The Enzyme testing framework was choses as it, in my opinion, is best for Unit tests and is easy to mock and stub data.
 
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
+I chose to stay with a more standard, 'prop drilling' style of app due to the size, reduced complexity and provided time contraint on this interview test. Full testing and archetecture of a Redux and React Context based app have been done prior at my current job. I would be willing to talk about what the pros and cons are for each approach especially with testing those.
 
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+With the styling, I chose to go simple and use [Bootstrap](https://getbootstrap.com/), [ReactStrap](https://reactstrap.github.io/) (React wrapped Bootstrap markup), and [Emotion](https://github.com/emotion-js/emotion). Each I'm currently using in production for my current job, after some investigation on the most efficient 3rd party or hand-rolled direction.
 
-Instead, it will copy all the configuration files and the transitive dependencies (Webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
+I'm a fan of PropTypes and using them to help in removing comming type errors in data. You'll see some usage of PropTypes in some components. I tend to be more specific about my props instead of relying on a simple PropTypes.object or PropTypes.array style of checking; often instead using .shape({}) or other more specific methods available.
 
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
+## Improvements
 
-## Learn More
+The design is a simple one and if given the time, would have attempted a little more complex and robust design.
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+I chose to implement a filter menu that houses a few different filter options as well as the total count of cards. If I had more time, I think I would first add a loading indicator to this filter menu (one exists when cards are loading) as well as maybe rethink how the UX of this menus works. I feel like having the menu options available always on desktop and the current menu shown on a mobile device would be a better direction.
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+I wasn't able to fully integrate a toast or messaging based component on the page for the user to review any errors. I did simply just log out the error to the console for the time being.
 
-### Code Splitting
+I felt satisfied with the testing; however, if given more time, I would also look at adding integration and/or end-to-end testing using something like the [react-testing-library](https://github.com/testing-library/react-testing-library) or better [cypress.io](https://www.cypress.io/).
 
-This section has moved here: https://facebook.github.io/create-react-app/docs/code-splitting
-
-### Analyzing the Bundle Size
-
-This section has moved here: https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size
-
-### Making a Progressive Web App
-
-This section has moved here: https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app
-
-### Advanced Configuration
-
-This section has moved here: https://facebook.github.io/create-react-app/docs/advanced-configuration
-
-### Deployment
-
-This section has moved here: https://facebook.github.io/create-react-app/docs/deployment
-
-### `npm run build` fails to minify
-
-This section has moved here: https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify
+I did add a few comments in the code for further explaination on a few things. I did not do any in the tests as I felt if would be easier to rely those in person.
