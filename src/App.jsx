@@ -14,13 +14,17 @@ class App extends PureComponent {
 		isLoadingMore: false,
 		isPageLoading: true,
 		filters: {
+			orderBy: "name",
 			page: "1",
-			pageSize: "50",
+			pageSize: "20",
 			types: "creature"
 		}
 	};
 
 	componentDidMount() {
+		// typically I'd put this function into it's own class method
+		// and then call if from here; however, due to the app size
+		// I decided to leave it as such.
 		return this.getCards({ clearCards: true }).then(() => {
 			window.addEventListener("scroll", this.handleScroll);
 		});
@@ -42,6 +46,9 @@ class App extends PureComponent {
 	};
 
 	applyFilters = filter => {
+		// Since setState is async and the state is needed for the getCards
+		// call, I needed to return a Promise.resolve when state was updated
+		// specifically for the onChange method
 		return new Promise(resolve => {
 			this.setState(
 				prevState => ({
@@ -62,6 +69,9 @@ class App extends PureComponent {
 	};
 
 	onInput = ({ target: { id, value } }) => {
+		// Timeouts here will prevent multile unnessesary calls to the
+		// api when a user is typing. I found that from 250ms-500ms is
+		// a good time to wait for a call to be made.
 		clearTimeout(this.timer);
 
 		const filter = { [id]: value };
@@ -79,6 +89,15 @@ class App extends PureComponent {
 
 		return fetchApi(`${cardsEndpoint}${params}`)
 			.then(res => {
+				// IF I was to design this API response I would have a more
+				// easier way to access the meta information.
+				// Usually something like response: { data: {...}, meta: {...} }
+				// where the meta information would contain pagination, total, etc,
+				// really anything that is about the data.
+				// This would also allow me to test if the response is application/json
+				// and resolve that res.json() portion inside my fetchApi helper
+				// instead of each time I make a call using the fetchApi method.
+				// Also means less repeat testing.
 				const { headers } = res;
 				const totalCount = headers.get("total-count");
 				const hasPages = headers.get("link").includes('rel="next"');
@@ -116,7 +135,7 @@ class App extends PureComponent {
 					};
 				});
 			})
-			.catch(err => console.warn("An error occurred", err)); // Catch error, show toast
+			.catch(err => console.warn("An error occurred", err)); // TODO: Catch error, show toast
 	};
 
 	render() {
@@ -133,6 +152,8 @@ class App extends PureComponent {
 							<div className="row">
 								{cards.map((card, index) => {
 									const { artist, imageUrl, name, originalType, setName } = card;
+									// Data wasn't unique for everything so unfortuntly I had to use
+									// the index of the loop. Generally something that I avoid if possible.
 									const key = `${artist}-${name}-${index}`;
 
 									return (

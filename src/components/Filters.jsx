@@ -15,7 +15,7 @@ const buttonStyles = css`
 
 class Filters extends PureComponent {
 	static orderByOptions = ["artist", "name", "rarity", "set", "type"];
-	static pageSizeOptions = ["10", "25", "50", "100"];
+	static pageSizeOptions = ["10", "20", "50", "100"];
 
 	state = {
 		isOpen: false,
@@ -129,8 +129,8 @@ class Filters extends PureComponent {
 						</FormGroup>
 					</Form>
 
-					<ModalFooter>
-						{`${totalCount} total cards`}
+					<ModalFooter className="justify-content-between">
+						<p className="m-0">{`${totalCount} Total Cards`}</p>
 						<Button className="ml-3" color="secondary" onClick={this.toggle}>
 							Close
 						</Button>
