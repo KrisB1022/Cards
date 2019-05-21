@@ -1,0 +1,14 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`has correct starting state 1`] = `
+Object {
+  "cards": Array [],
+  "filters": Object {
+    "page": "1",
+    "pageSize": "50",
+    "types": "creature",
+  },
+  "isLoadingMore": false,
+  "isPageLoading": true,
+}
+`;

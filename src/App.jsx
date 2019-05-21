@@ -6,74 +6,177 @@ import { cardsEndpoint } from "./helpers/ApiEndpoints";
 import { fetchApi, queryFormatHelper } from "./helpers/AjaxHelpers";
 import MainNav from "./components/MainNav";
 import Card from "./components/Card";
-
-// https://api.magicthegathering.io/v1/cards?page=0&pageSize=50&types=creature
+import Filters from "./components/Filters";
 
 class App extends PureComponent {
 	state = {
 		cards: [],
-		currentPage: 1,
-		isPageLoading: true
+		isLoadingMore: false,
+		isPageLoading: true,
+		filters: {
+			page: "1",
+			pageSize: "50",
+			types: "creature"
+		}
 	};
 
 	componentDidMount() {
-		const query = ["types=creature", `page=${this.state.currentPage}`, "pageSize=50"];
-		this.getCards(query).then(() => this.setState({ isPageLoading: false }));
+		return this.getCards({ clearCards: true }).then(() => {
+			window.addEventListener("scroll", this.handleScroll);
+		});
 	}
 
-	getCards = query => {
-		const params = queryFormatHelper(query);
+	handleScroll = () => {
+		const { cards, isLoadingMore, totalCount } = this.state;
+		const hasAllCards = parseInt(totalCount) === cards.length;
+
+		if (isLoadingMore || hasAllCards) {
+			return;
+		}
+
+		const { innerHeight, scrollY } = window;
+
+		if (innerHeight + scrollY >= document.body.offsetHeight - 600) {
+			this.getCards();
+		}
+	};
+
+	applyFilters = filter => {
+		return new Promise(resolve => {
+			this.setState(
+				prevState => ({
+					filters: {
+						...prevState.filters,
+						...filter,
+						page: 1
+					}
+				}),
+				() => resolve()
+			);
+		});
+	};
+
+	onChange = ({ target: { id, value } }) => {
+		const filter = { [id]: value };
+		return this.applyFilters(filter).then(() => this.getCards({ clearCards: true }));
+	};
+
+	onInput = ({ target: { id, value } }) => {
+		clearTimeout(this.timer);
+
+		const filter = { [id]: value };
+		this.applyFilters(filter);
+
+		this.timer = setTimeout(() => {
+			this.getCards({ clearCards: true });
+		}, 300);
+	};
+
+	getCards = ({ clearCards = false } = {}) => {
+		const params = queryFormatHelper(this.state.filters);
+
+		this.setState({ isLoadingMore: true, isPageLoading: clearCards });
+
 		return fetchApi(`${cardsEndpoint}${params}`)
 			.then(res => {
-				this.setState({
-					cards: res.cards
+				const { headers } = res;
+				const totalCount = headers.get("total-count");
+				const hasPages = headers.get("link").includes('rel="next"');
+
+				this.setState(prevState => {
+					const { page } = prevState.filters;
+
+					return {
+						totalCount,
+						filters: {
+							...prevState.filters,
+							page: hasPages ? page + 1 : page
+						}
+					};
+				});
+
+				return res.json();
+			})
+			.then(res => {
+				if (clearCards) {
+					window.scroll({
+						top: 0,
+						left: 0,
+						behavior: "smooth"
+					});
+				}
+
+				this.setState(prevState => {
+					const cards = clearCards ? res.cards : [...prevState.cards, ...res.cards];
+
+					return {
+						cards,
+						isLoadingMore: false,
+						isPageLoading: false
+					};
 				});
 			})
 			.catch(err => console.warn("An error occurred", err)); // Catch error, show toast
 	};
 
 	render() {
-		const { cards, isPageLoading } = this.state;
+		const { cards, isLoadingMore, isPageLoading, filters, totalCount } = this.state;
 		const hasCards = cards && cards.length > 0;
 
-		if (isPageLoading) {
-			return (
-				<div className="col d-flex justify-content-center align-items-center vh-100">
-					<Spinner color="secondary" />
-				</div>
-			);
-		}
-
 		return (
-			<Fragment>
+			<div>
 				<MainNav />
 
 				<div className="container">
-					<div className="row">
-						{hasCards ? (
-							cards.map(card => {
-								const { artist, imageUrl, name, originalType, setName } = card;
-								const key = `${artist}-${name}-${imageUrl}`;
+					{hasCards ? (
+						<Fragment>
+							<div className="row">
+								{cards.map((card, index) => {
+									const { artist, imageUrl, name, originalType, setName } = card;
+									const key = `${artist}-${name}-${index}`;
 
-								return (
-									<Card
-										key={key}
-										artist={artist}
-										imageUrl={imageUrl}
-										name={name}
-										originalType={originalType}
-										setName={setName}
-									/>
-								);
-							})
-						) : (
-							<div className="col d-flex justify-content-center align-items-center vh-100">
-								<Spinner color="secondary" />
+									return (
+										<Card
+											key={key}
+											artist={artist}
+											imageUrl={imageUrl}
+											name={name}
+											originalType={originalType}
+											setName={setName}
+										/>
+									);
+								})}
 							</div>
-						)}
-					</div>
+
+							{isLoadingMore && (
+								<div className="row">
+									<div className="col d-flex justify-content-center align-items-center mb-5">
+										<Spinner color="secondary" />
+									</div>
+								</div>
+							)}
+						</Fragment>
+					) : (
+						<div className="row">
+							<div className="col d-flex justify-content-center align-items-center vh-100 mt-n5">
+								{isPageLoading ? (
+									<Spinner color="secondary" />
+								) : (
+									<p className="m-0">No Data Found</p>
+								)}
+							</div>
+						</div>
+					)}
+
+					<Filters
+						disabled={isPageLoading || isLoadingMore}
+						filters={filters}
+						onChange={this.onChange}
+						onInput={this.onInput}
+						totalCount={totalCount}
+					/>
 				</div>
-			</Fragment>
+			</div>
 		);
 	}
 }
