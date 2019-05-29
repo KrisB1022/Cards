@@ -8,198 +8,240 @@ import MainNav from "./components/MainNav";
 import Card from "./components/Card";
 import Filters from "./components/Filters";
 
+export const initialFilters = {
+  orderBy: "name",
+  page: 1,
+  pageSize: 20,
+  types: "creature"
+};
+
 class App extends PureComponent {
-	state = {
-		cards: [],
-		isLoadingMore: false,
-		isPageLoading: true,
-		filters: {
-			orderBy: "name",
-			page: "1",
-			pageSize: "20",
-			types: "creature"
-		}
-	};
+  state = {
+    cards: [],
+    userCards: {
+      // order: [], // TODO: Look if ordering if good feature to have
+      byId: {}
+    },
+    isLoadingMore: false,
+    isPageLoading: true,
+    totalCount: 0,
+    filters: {
+      ...initialFilters
+    }
+  };
 
-	componentDidMount() {
-		// typically I'd put this function into it's own class method
-		// and then call if from here; however, due to the app size
-		// I decided to leave it as such.
-		return this.getCards({ clearCards: true }).then(() => {
-			window.addEventListener("scroll", this.handleScroll);
-		});
-	}
+  componentDidMount() {
+    return this.getCards({ clearCards: true }).then(() => {
+      window.addEventListener("scroll", this.handleScroll);
+    });
+  }
 
-	handleScroll = () => {
-		const { cards, isLoadingMore, totalCount } = this.state;
-		const hasAllCards = parseInt(totalCount) === cards.length;
+  handleScroll = () => {
+    const { cards, isLoadingMore, totalCount } = this.state;
+    const hasAllCards = totalCount === cards.length;
 
-		if (isLoadingMore || hasAllCards) {
-			return;
-		}
+    if (isLoadingMore || hasAllCards) {
+      return;
+    }
 
-		const { innerHeight, scrollY } = window;
+    const { innerHeight, scrollY } = window;
 
-		if (innerHeight + scrollY >= document.body.offsetHeight - 600) {
-			this.getCards();
-		}
-	};
+    if (innerHeight + scrollY >= document.body.offsetHeight - 600) {
+      this.getCards(document.body.offsetHeight);
+    }
+  };
 
-	applyFilters = filter => {
-		// Since setState is async and the state is needed for the getCards
-		// call, I needed to return a Promise.resolve when state was updated
-		// specifically for the onChange method
-		return new Promise(resolve => {
-			this.setState(
-				prevState => ({
-					filters: {
-						...prevState.filters,
-						...filter,
-						page: 1
-					}
-				}),
-				() => resolve()
-			);
-		});
-	};
+  applyFilters = ({ filter, delay = false } = {}) => {
+    this.setState(
+      prevState => ({
+        filters: {
+          ...prevState.filters,
+          ...filter,
+          page: 1
+        }
+      }),
+      () => {
+        if (delay) {
+          clearTimeout(this.timer);
 
-	onChange = ({ target: { id, value } }) => {
-		const filter = { [id]: value };
-		return this.applyFilters(filter).then(() => this.getCards({ clearCards: true }));
-	};
+          this.timer = setTimeout(() => {
+            this.getCards({ clearCards: true });
+          }, 500);
 
-	onInput = ({ target: { id, value } }) => {
-		// Timeouts here will prevent multile unnessesary calls to the
-		// api when a user is typing. I found that from 250ms-500ms is
-		// a good time to wait for a call to be made.
-		clearTimeout(this.timer);
+          return;
+        }
 
-		const filter = { [id]: value };
-		this.applyFilters(filter);
+        this.getCards({ clearCards: true });
+      }
+    );
+  };
 
-		this.timer = setTimeout(() => {
-			this.getCards({ clearCards: true });
-		}, 300);
-	};
+  resetFilters = () => {
+    this.setState(
+      {
+        filters: { ...initialFilters }
+      },
+      () => {
+        this.getCards({ clearCards: true });
+      }
+    );
+  };
 
-	getCards = ({ clearCards = false } = {}) => {
-		const params = queryFormatHelper(this.state.filters);
+  onChange = ({ target: { id, value } }) => {
+    const filter = { [id]: value };
+    return this.applyFilters({ filter });
+  };
 
-		this.setState({ isLoadingMore: true, isPageLoading: clearCards });
+  onInput = ({ target: { id, value } }) => {
+    const filter = { [id]: value };
+    this.applyFilters({ filter, delay: true });
+  };
 
-		return fetchApi(`${cardsEndpoint}${params}`)
-			.then(res => {
-				// IF I was to design this API response I would have a more
-				// easier way to access the meta information.
-				// Usually something like response: { data: {...}, meta: {...} }
-				// where the meta information would contain pagination, total, etc,
-				// really anything that is about the data.
-				// This would also allow me to test if the response is application/json
-				// and resolve that res.json() portion inside my fetchApi helper
-				// instead of each time I make a call using the fetchApi method.
-				// Also means less repeat testing.
-				const { headers } = res;
-				const totalCount = headers.get("total-count");
-				const hasPages = headers.get("link").includes('rel="next"');
+  getCards = ({ clearCards = false, query = this.state.filters } = {}) => {
+    const queryParams = queryFormatHelper(query);
 
-				this.setState(prevState => {
-					const { page } = prevState.filters;
+    this.setState({ isLoadingMore: true, isPageLoading: clearCards });
 
-					return {
-						totalCount,
-						filters: {
-							...prevState.filters,
-							page: hasPages ? page + 1 : page
-						}
-					};
-				});
+    return fetchApi(`${cardsEndpoint}${queryParams}`)
+      .then(async res => {
+        if (clearCards) {
+          window.scroll({
+            top: 0,
+            left: 0,
+            behavior: "smooth"
+          });
+        }
 
-				return res.json();
-			})
-			.then(res => {
-				if (clearCards) {
-					window.scroll({
-						top: 0,
-						left: 0,
-						behavior: "smooth"
-					});
-				}
+        const json = await res.json();
 
-				this.setState(prevState => {
-					const cards = clearCards ? res.cards : [...prevState.cards, ...res.cards];
+        const { headers } = res;
+        const totalCount = headers.get("total-count");
+        const hasPages = headers.get("link").includes('rel="next"');
 
-					return {
-						cards,
-						isLoadingMore: false,
-						isPageLoading: false
-					};
-				});
-			})
-			.catch(err => console.warn("An error occurred", err)); // TODO: Catch error, show toast
-	};
+        this.setState(() => {
+          const { page, ...filters } = this.state.filters;
+          const cards = clearCards
+            ? json.cards
+            : [...this.state.cards, ...json.cards];
 
-	render() {
-		const { cards, isLoadingMore, isPageLoading, filters, totalCount } = this.state;
-		const hasCards = cards && cards.length > 0;
+          return {
+            cards,
+            filters: {
+              ...filters,
+              page: hasPages ? page + 1 : page
+            },
+            isLoadingMore: false,
+            isPageLoading: false,
+            totalCount: JSON.parse(totalCount)
+          };
+        });
+      })
+      .catch(err => console.warn("An error occurred", err)); // TODO: Catch error, show toast
+  };
 
-		return (
-			<div>
-				<MainNav />
+  updateUserCards = ({ card, remove }) => {
+    const { userCards } = this.state;
+    const { id } = card;
+    const byId = {
+      ...userCards.byId,
+      [id]: card
+    };
 
-				<div className="container">
-					{hasCards ? (
-						<Fragment>
-							<div className="row">
-								{cards.map((card, index) => {
-									const { artist, imageUrl, name, originalType, setName } = card;
-									// Data wasn't unique for everything so unfortuntly I had to use
-									// the index of the loop. Generally something that I avoid if possible.
-									const key = `${artist}-${name}-${index}`;
+    if (remove) {
+      delete byId[id];
+    }
 
-									return (
-										<Card
-											key={key}
-											artist={artist}
-											imageUrl={imageUrl}
-											name={name}
-											originalType={originalType}
-											setName={setName}
-										/>
-									);
-								})}
-							</div>
+    this.setState({
+      userCards: {
+        ...userCards,
+        byId
+      }
+    });
+  };
 
-							{isLoadingMore && (
-								<div className="row">
-									<div className="col d-flex justify-content-center align-items-center mb-5">
-										<Spinner color="secondary" />
-									</div>
-								</div>
-							)}
-						</Fragment>
-					) : (
-						<div className="row">
-							<div className="col d-flex justify-content-center align-items-center vh-100 mt-n5">
-								{isPageLoading ? (
-									<Spinner color="secondary" />
-								) : (
-									<p className="m-0">No Data Found</p>
-								)}
-							</div>
-						</div>
-					)}
+  render() {
+    const {
+      cards,
+      userCards,
+      isLoadingMore,
+      isPageLoading,
+      filters,
+      totalCount
+    } = this.state;
+    const hasCards = cards && cards.length > 0;
 
-					<Filters
-						disabled={isPageLoading || isLoadingMore}
-						filters={filters}
-						onChange={this.onChange}
-						onInput={this.onInput}
-						totalCount={totalCount}
-					/>
-				</div>
-			</div>
-		);
-	}
+    return (
+      <div>
+        <MainNav
+          applyFilters={this.applyFilters}
+          getCards={this.getCards}
+          totalCount={totalCount}
+          userCards={userCards}
+        />
+
+        <div className="container">
+          {hasCards ? (
+            <Fragment>
+              <div className="row">
+                {cards.map((card, index) => {
+                  const {
+                    artist,
+                    id,
+                    imageUrl,
+                    name,
+                    originalType,
+                    setName
+                  } = card;
+                  const isUserCard = userCards.byId[id] !== undefined;
+
+                  return (
+                    <Card
+                      artist={artist}
+                      card={card}
+                      imageUrl={imageUrl}
+                      isUserCard={isUserCard}
+                      key={`${id}-${index}`}
+                      name={name}
+                      originalType={originalType}
+                      setName={setName}
+                      updateUserCards={this.updateUserCards}
+                    />
+                  );
+                })}
+              </div>
+
+              {isLoadingMore && (
+                <div className="row">
+                  <div className="col d-flex justify-content-center align-items-center mb-5">
+                    <Spinner color="secondary" />
+                  </div>
+                </div>
+              )}
+            </Fragment>
+          ) : (
+            <div className="row">
+              <div className="col d-flex justify-content-center align-items-center vh-100 mt-n5">
+                {isPageLoading ? (
+                  <Spinner color="secondary" />
+                ) : (
+                  <p className="m-0">No Data Found</p>
+                )}
+              </div>
+            </div>
+          )}
+
+          <Filters
+            disabled={isPageLoading || isLoadingMore}
+            filters={filters}
+            onChange={this.onChange}
+            onInput={this.onInput}
+            resetFilters={this.resetFilters}
+            totalCount={totalCount}
+          />
+        </div>
+      </div>
+    );
+  }
 }
 
 export default App;
