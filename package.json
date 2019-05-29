@@ -1,44 +1,54 @@
 {
-	"name": "cards",
-	"version": "0.1.0",
-	"private": false,
-	"dependencies": {
-		"@fortawesome/react-fontawesome": "^0.1.4",
-		"react": "^16.8.6",
-		"react-dom": "^16.8.6",
-		"react-scripts": "3.0.1"
-	},
-	"proxy": "http://localhost:4000",
-	"scripts": {
-		"start": "yarn && react-scripts start",
-		"build": "react-scripts build",
-		"test": "react-scripts test",
-		"eject": "react-scripts eject"
-	},
-	"eslintConfig": {
-		"extends": "react-app"
-	},
-	"browserslist": {
-		"production": [
-			">0.2%",
-			"not dead",
-			"not op_mini all"
-		],
-		"development": [
-			"last 1 chrome version",
-			"last 1 firefox version",
-			"last 1 safari version"
-		]
-	},
-	"devDependencies": {
-		"@fortawesome/fontawesome-svg-core": "^1.2.18",
-		"@fortawesome/free-solid-svg-icons": "^5.8.2",
-		"bootstrap": "^4.3.1",
-		"emotion": "^10.0.9",
-		"enzyme": "^3.9.0",
-		"enzyme-adapter-react-16": "^1.13.0",
-		"jest-emotion": "^10.0.11",
-		"jest-fetch-mock": "^2.1.2",
-		"reactstrap": "^8.0.0"
-	}
+  "name": "cards",
+  "version": "0.1.0",
+  "private": false,
+  "author": "Kris Byrum",
+  "license": "ISC",
+  "husky": {
+    "hooks": {
+      "pre-commit": "pretty-quick --staged"
+    }
+  },
+  "proxy": "http://localhost:4000",
+  "scripts": {
+    "start": "yarn && react-scripts start",
+    "build": "react-scripts build",
+    "test": "react-scripts test",
+    "eject": "react-scripts eject"
+  },
+  "eslintConfig": {
+    "extends": "react-app"
+  },
+  "dependencies": {
+    "@fortawesome/react-fontawesome": "^0.1.4",
+    "react": "^16.8.6",
+    "react-dom": "^16.8.6",
+    "react-scripts": "3.0.1"
+  },
+  "devDependencies": {
+    "@fortawesome/fontawesome-svg-core": "^1.2.18",
+    "@fortawesome/free-solid-svg-icons": "^5.8.2",
+    "bootstrap": "^4.3.1",
+    "emotion": "^10.0.9",
+    "enzyme": "^3.9.0",
+    "enzyme-adapter-react-16": "^1.13.2",
+    "husky": "^2.3.0",
+    "prettier": "^1.17.1",
+    "pretty-quick": "^1.11.0",
+    "jest-emotion": "^10.0.11",
+    "jest-fetch-mock": "^2.1.2",
+    "reactstrap": "^8.0.0"
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  }
 }
