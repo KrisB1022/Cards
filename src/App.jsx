@@ -47,7 +47,7 @@ class App extends PureComponent {
     const { innerHeight, scrollY } = window;
 
     if (innerHeight + scrollY >= document.body.offsetHeight - 600) {
-      this.getCards(document.body.offsetHeight);
+      this.getCards();
     }
   };
 
