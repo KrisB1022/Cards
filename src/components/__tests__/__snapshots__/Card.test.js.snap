@@ -25,7 +25,7 @@ exports[`matches snapshot 1`] = `
         <img
           alt="name card image"
           className="mx-auto d-block figure-img img-fluid emotion-0 flex-grow-1 card-img-top"
-          src="url.com"
+          src="https://via.placeholder.com/223x310.png"
         />
         <figcaption
           className="figure-caption text-right"
@@ -34,7 +34,7 @@ exports[`matches snapshot 1`] = `
         </figcaption>
       </figure>
       <div
-        className="pt-2"
+        className="pt-2 pb-2"
       >
         <p
           className="card-text"
@@ -70,6 +70,14 @@ exports[`matches snapshot 1`] = `
           setName
         </p>
       </div>
+      <button
+        aria-label={null}
+        className="btn btn-primary"
+        onClick={[Function]}
+        type="button"
+      >
+        Add to my cards
+      </button>
     </div>
   </div>
 </div>

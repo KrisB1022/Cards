@@ -4,11 +4,25 @@ exports[`has correct starting state 1`] = `
 Object {
   "cards": Array [],
   "filters": Object {
-    "page": "1",
-    "pageSize": "50",
+    "orderBy": "name",
+    "page": 1,
+    "pageSize": 20,
     "types": "creature",
   },
   "isLoadingMore": false,
   "isPageLoading": true,
+  "totalCount": 0,
+  "userCards": Object {
+    "byId": Object {},
+  },
+}
+`;
+
+exports[`matches snapshot for initialFilters 1`] = `
+Object {
+  "orderBy": "name",
+  "page": 1,
+  "pageSize": 20,
+  "types": "creature",
 }
 `;
